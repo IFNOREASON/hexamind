@@ -1,0 +1,296 @@
+{
+  "entities": [
+    {
+      "name": "小学一年级学习大纲",
+      "category": "framework",
+      "description": "A comprehensive learning outline for primary school grade 1 students covering multiple subjects and habits.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "2025–2026 学年",
+      "category": "event",
+      "description": "The specific academic year period applicable for this learning outline.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "语文",
+      "category": "concept",
+      "description": "Core subject focusing on literacy, reading, writing, and oral communication.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "数学",
+      "category": "concept",
+      "description": "Core subject focusing on number sense, calculation, logic, and life applications.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "道德与法治",
+      "category": "concept",
+      "description": "Subject focusing on habits, rules, safety, and collective responsibility.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "科学",
+      "category": "concept",
+      "description": "Subject focusing on observation of nature, seasons, and basic natural phenomena.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "体育",
+      "category": "concept",
+      "description": "Subject focusing on physical actions, health, and hygiene habits.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "音乐",
+      "category": "concept",
+      "description": "Subject focusing on singing, rhythm, and instrument recognition.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "美术",
+      "category": "concept",
+      "description": "Subject focusing on colors, drawing, crafting, and imagination.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "劳动",
+      "category": "concept",
+      "description": "Subject focusing on self-care, classroom duties, and household chores.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "行为习惯",
+      "category": "concept",
+      "description": "Module focusing on learning habits, sleep, and study routines.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "拼音",
+      "category": "concept",
+      "description": "Phonetic system used for learning Chinese characters and reading.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "汉字",
+      "category": "concept",
+      "description": "Chinese characters to be recognized and written by students.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "加减法",
+      "category": "concept",
+      "description": "Basic arithmetic operations within 20 taught in math.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "人民币",
+      "category": "tool",
+      "description": "Currency unit used for learning simple conversion and shopping calculations.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "钟表",
+      "category": "tool",
+      "description": "Timekeeping tool used for learning to read time (hour and half-hour).",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "homeschool",
+      "category": "concept",
+      "description": "Educational method where the outline can be directly applied.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "幼小衔接",
+      "category": "concept",
+      "description": "Educational transition phase between kindergarten and primary school.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "小学一年级学习大纲",
+      "target": "2025–2026 学年",
+      "relationship": "applies to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "语文",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "数学",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "道德与法治",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "科学",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "体育",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "音乐",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "美术",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "劳动",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "行为习惯",
+      "relationship": "covers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "语文",
+      "target": "拼音",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "语文",
+      "target": "汉字",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "数学",
+      "target": "加减法",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "数学",
+      "target": "人民币",
+      "relationship": "uses for learning",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "数学",
+      "target": "钟表",
+      "relationship": "uses for learning",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "homeschool",
+      "relationship": "suitable for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级学习大纲",
+      "target": "幼小衔接",
+      "relationship": "considers",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "entities": [
+        "语文",
+        "数学",
+        "道德与法治",
+        "科学",
+        "体育",
+        "音乐",
+        "美术",
+        "劳动",
+        "行为习惯"
+      ],
+      "relation": "covered by",
+      "label": "Nine Core Modules",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "识字与写字",
+        "拼音",
+        "阅读",
+        "口语交际",
+        "写话/表达"
+      ],
+      "relation": "components of",
+      "label": "Chinese Curriculum Components",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "数与运算",
+        "图形与几何",
+        "常见量",
+        "统计与规律",
+        "解决问题"
+      ],
+      "relation": "components of",
+      "label": "Math Curriculum Components",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ]
+}

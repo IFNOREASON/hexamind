@@ -1,0 +1,126 @@
+{
+  "entities": [
+    {
+      "name": "中国",
+      "category": "organization",
+      "description": "The country referred to as the motherland in the text.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95
+    },
+    {
+      "name": "中国人",
+      "category": "concept",
+      "description": "People of Chinese nationality mentioned in the title and first line.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "祖国",
+      "category": "concept",
+      "description": "The motherland, referring to China in this context.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "国旗",
+      "category": "concept",
+      "description": "The national flag mentioned as a symbol of the country.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "五星红旗",
+      "category": "concept",
+      "description": "The specific name of the national flag (Five-Star Red Flag).",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "长江",
+      "category": "concept",
+      "description": "The Yangtze River, listed as a geographical feature of the motherland.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "黄河",
+      "category": "concept",
+      "description": "The Yellow River, listed as a geographical feature of the motherland.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "万里长城",
+      "category": "concept",
+      "description": "The Great Wall, listed as a landmark of the motherland.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "中国人",
+      "target": "中国",
+      "relationship": "nationality of",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "祖国",
+      "target": "中国",
+      "relationship": "refers to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95
+    },
+    {
+      "source": "祖国",
+      "target": "国旗",
+      "relationship": "has symbol",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "国旗",
+      "target": "五星红旗",
+      "relationship": "is specifically",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "祖国",
+      "target": "长江",
+      "relationship": "contains geographical feature",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "祖国",
+      "target": "黄河",
+      "relationship": "contains geographical feature",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "祖国",
+      "target": "万里长城",
+      "relationship": "contains landmark",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "entities": [
+        "祖国",
+        "五星红旗",
+        "长江",
+        "黄河",
+        "万里长城"
+      ],
+      "relation": "associated features",
+      "label": "National Symbols and Landmarks",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ]
+}

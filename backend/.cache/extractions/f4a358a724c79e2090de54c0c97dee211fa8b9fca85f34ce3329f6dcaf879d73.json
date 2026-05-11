@@ -1,0 +1,240 @@
+{
+  "entities": [
+    {
+      "name": "小学一年级全年学习大纲",
+      "category": "framework",
+      "description": "适用于 2025-2026 学年的小学一年级通用版全年学习规划框架。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "2025–2026 学年",
+      "category": "event",
+      "description": "该学习大纲适用的具体学年度时间范围。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "语文",
+      "category": "concept",
+      "description": "小学一年级核心学科之一，涵盖识字、拼音、阅读等内容。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "数学",
+      "category": "concept",
+      "description": "小学一年级核心学科之一，涵盖数感、计算、几何等内容。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "道德与法治",
+      "category": "concept",
+      "description": "小学一年级学科模块，关注习惯、规则、安全与集体意识。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "科学",
+      "category": "concept",
+      "description": "小学一年级学科模块，侧重启蒙观察与自然事物感知。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "体育",
+      "category": "concept",
+      "description": "小学一年级学科模块，涉及基本动作、队列与健康习惯。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "音乐",
+      "category": "concept",
+      "description": "小学一年级学科模块，包括儿歌演唱与乐器认识。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "美术",
+      "category": "concept",
+      "description": "小学一年级学科模块，涉及颜色认识、绘画与手工造型。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "劳动",
+      "category": "concept",
+      "description": "小学一年级学科模块，包含整理物品与家务启蒙。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "行为习惯",
+      "category": "concept",
+      "description": "小学一年级重要学习模块，涵盖学习习惯与生活作息。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "拼音",
+      "category": "concept",
+      "description": "语文学习子模块，包括声母、韵母及音节拼读。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "识字",
+      "category": "concept",
+      "description": "语文学习子模块，要求认识常用汉字 400 个左右。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "加减法",
+      "category": "concept",
+      "description": "数学学习子模块，重点掌握 20 以内加减法口算。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "homeschool",
+      "category": "concept",
+      "description": "该大纲适用的教育场景之一，指家庭学校模式。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "2025–2026 学年",
+      "relationship": "适用于",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "语文",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "数学",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "道德与法治",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "科学",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "体育",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "音乐",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "美术",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "劳动",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "行为习惯",
+      "relationship": "覆盖",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "语文",
+      "target": "拼音",
+      "relationship": "包含",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "语文",
+      "target": "识字",
+      "relationship": "包含",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "数学",
+      "target": "加减法",
+      "relationship": "包含",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "小学一年级全年学习大纲",
+      "target": "homeschool",
+      "relationship": "可用于",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "entities": [
+        "语文",
+        "数学",
+        "道德与法治",
+        "科学",
+        "体育",
+        "音乐",
+        "美术",
+        "劳动",
+        "行为习惯"
+      ],
+      "relation": "共同构成小学一年级全年学习大纲的九大模块",
+      "label": "大纲核心模块组",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "识字",
+        "拼音",
+        "加减法",
+        "行为习惯"
+      ],
+      "relation": "列为一年级全年目标简版的核心指标",
+      "label": "全年核心目标",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ]
+}

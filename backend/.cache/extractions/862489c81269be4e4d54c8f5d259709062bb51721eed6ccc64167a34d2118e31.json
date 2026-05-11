@@ -1,0 +1,268 @@
+{
+  "entities": [
+    {
+      "name": "机器学习",
+      "category": "concept",
+      "description": "人工智能的一个分支，使计算机能够从数据中学习而无需被明确编程。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "人工智能",
+      "category": "concept",
+      "description": "包含机器学习的大领域，涉及智能行为的研究。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "监督学习",
+      "category": "concept",
+      "description": "最常见的机器学习类型，使用标记数据来训练模型。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "线性回归",
+      "category": "technology",
+      "description": "监督学习中常见的算法之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "决策树",
+      "category": "technology",
+      "description": "监督学习中常见的算法之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "支持向量机",
+      "category": "technology",
+      "description": "监督学习中常见的算法之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "深度学习",
+      "category": "concept",
+      "description": "机器学习的一个子领域，使用多层神经网络来学习数据的层次化表示。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "神经网络",
+      "category": "technology",
+      "description": "深度学习使用的核心结构，用于学习数据的层次化表示。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "卷积神经网络",
+      "category": "technology",
+      "description": "擅长图像识别的神经网络类型。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "循环神经网络",
+      "category": "technology",
+      "description": "擅长序列数据处理的神经网络类型。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "反向传播算法",
+      "category": "technology",
+      "description": "训练神经网络的核心方法，通过链式法则计算梯度并更新权重。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "链式法则",
+      "category": "concept",
+      "description": "反向传播算法中用于计算梯度的数学方法。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "过拟合",
+      "category": "concept",
+      "description": "模型在训练数据上表现良好但在新数据上表现差的问题。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "正则化",
+      "category": "technology",
+      "description": "解决过拟合问题的常用方法之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Dropout",
+      "category": "technology",
+      "description": "解决过拟合问题的常用方法之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "数据增强",
+      "category": "technology",
+      "description": "解决过拟合问题的常用方法之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "图像识别",
+      "category": "concept",
+      "description": "卷积神经网络擅长的任务领域。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "序列数据处理",
+      "category": "concept",
+      "description": "循环神经网络擅长的任务领域。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "机器学习",
+      "target": "人工智能",
+      "relationship": "是...的一个分支",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "监督学习",
+      "target": "机器学习",
+      "relationship": "是...的类型",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "线性回归",
+      "target": "监督学习",
+      "relationship": "是...的常见算法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "决策树",
+      "target": "监督学习",
+      "relationship": "是...的常见算法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "支持向量机",
+      "target": "监督学习",
+      "relationship": "是...的常见算法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "深度学习",
+      "target": "机器学习",
+      "relationship": "是...的一个子领域",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "深度学习",
+      "target": "神经网络",
+      "relationship": "使用",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "卷积神经网络",
+      "target": "深度学习",
+      "relationship": "属于...领域",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9
+    },
+    {
+      "source": "循环神经网络",
+      "target": "深度学习",
+      "relationship": "属于...领域",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9
+    },
+    {
+      "source": "卷积神经网络",
+      "target": "图像识别",
+      "relationship": "擅长",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "循环神经网络",
+      "target": "序列数据处理",
+      "relationship": "擅长",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "反向传播算法",
+      "target": "神经网络",
+      "relationship": "是训练...的核心方法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "反向传播算法",
+      "target": "链式法则",
+      "relationship": "通过...计算梯度",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "正则化",
+      "target": "过拟合",
+      "relationship": "是...的解决方法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "Dropout",
+      "target": "过拟合",
+      "relationship": "是...的解决方法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "数据增强",
+      "target": "过拟合",
+      "relationship": "是...的解决方法",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "entities": [
+        "线性回归",
+        "决策树",
+        "支持向量机"
+      ],
+      "relation": "都是监督学习的常见算法",
+      "label": "监督学习算法组",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "正则化",
+        "Dropout",
+        "数据增强"
+      ],
+      "relation": "都是过拟合的常用解决方法",
+      "label": "过拟合解决方法组",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ]
+}

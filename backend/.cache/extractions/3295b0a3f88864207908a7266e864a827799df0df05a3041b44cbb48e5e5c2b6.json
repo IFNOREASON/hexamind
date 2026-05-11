@@ -1,0 +1,186 @@
+{
+  "entities": [
+    {
+      "name": "HexaMind",
+      "category": "tool",
+      "description": "A lightweight AI knowledge graph learning system product prototype.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Three.js",
+      "category": "framework",
+      "description": "A JavaScript 3D library used for dynamic knowledge graph visualization.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "NotebookLM",
+      "category": "tool",
+      "description": "A reference product for simple layout logic and data management advantages.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Graphify",
+      "category": "tool",
+      "description": "A reference product for automatic graphing and lightweight advantages.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Apple",
+      "category": "organization",
+      "description": "Referenced for minimalist design style and frosted glass texture.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Knowledge Graph",
+      "category": "concept",
+      "description": "Core visual component displaying dynamic nodes and connections.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "AI Dialog Box",
+      "category": "concept",
+      "description": "A core module for user questioning, answering, and instruction input.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Lightweight AI Knowledge Graph Learning System",
+      "category": "concept",
+      "description": "The positioning definition of the HexaMind product.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Material Upload",
+      "category": "concept",
+      "description": "Function for uploading documents and data to the system.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Ability Portrait",
+      "category": "concept",
+      "description": "A view representing user capability status within the learning loop.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "Learning Suggestions",
+      "category": "concept",
+      "description": "AI-generated recommendations for user learning progress.",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "HexaMind",
+      "target": "Three.js",
+      "relationship": "uses technology for visualization",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Apple",
+      "relationship": "references design style",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "NotebookLM",
+      "relationship": "references layout logic",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Graphify",
+      "relationship": "references feature advantages",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Lightweight AI Knowledge Graph Learning System",
+      "relationship": "is positioned as",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Knowledge Graph",
+      "relationship": "contains core module",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "AI Dialog Box",
+      "relationship": "contains core module",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "Three.js",
+      "target": "Knowledge Graph",
+      "relationship": "renders visual representation",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Material Upload",
+      "relationship": "implements function",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Ability Portrait",
+      "relationship": "implements function",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "HexaMind",
+      "target": "Learning Suggestions",
+      "relationship": "implements function",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "entities": [
+        "HexaMind",
+        "Material Upload",
+        "Knowledge Graph",
+        "Learning Suggestions",
+        "Ability Portrait"
+      ],
+      "relation": "sequential workflow steps",
+      "label": "Core Business Loop",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "HexaMind",
+        "Apple",
+        "NotebookLM"
+      ],
+      "relation": "design and layout inspiration sources",
+      "label": "Design Inspiration Group",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95
+    }
+  ]
+}

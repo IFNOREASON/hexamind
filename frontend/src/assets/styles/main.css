@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "./glassmorphism.css";
+@import "./animations.css";
+@import "./scrollbar.css";
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-hexablue: #60a5fa;
+  --color-hexapurple: #a78bfa;
+  --color-hexapink: #c084fc;
+  --color-spacegray: #0f172a;
+  --color-spacegray-light: #1e293b;
+  --color-spacegray-mid: #334155;
+}
+
+* {
+  font-family: var(--font-sans);
+}
+
+body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  color: #e2e8f0;
+  overflow: hidden;
+  margin: 0;
+}

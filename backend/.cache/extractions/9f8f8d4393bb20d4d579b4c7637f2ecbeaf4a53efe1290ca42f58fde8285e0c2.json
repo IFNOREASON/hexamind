@@ -1,0 +1,70 @@
+{
+  "entities": [
+    {
+      "name": "乌鸦",
+      "category": "person",
+      "description": "一种鸟类，具有解决问题的能力。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "瓶子",
+      "category": "tool",
+      "description": "用于盛放液体的容器。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "水",
+      "category": "concept",
+      "description": "一种常见的液体，由氢和氧组成。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "小石子",
+      "category": "tool",
+      "description": "小型的石头，常用于各种用途。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "乌鸦",
+      "target": "瓶子",
+      "relationship": "看到",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "乌鸦",
+      "target": "水",
+      "relationship": "渴了，想喝",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "乌鸦",
+      "target": "小石子",
+      "relationship": "看见旁边有许多",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "乌鸦",
+      "target": "瓶子",
+      "relationship": "把小石子放进瓶子里",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "瓶子",
+      "target": "水",
+      "relationship": "渐渐升高",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}

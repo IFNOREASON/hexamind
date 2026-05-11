@@ -1,0 +1,183 @@
+{
+  "entities": [
+    {
+      "name": "教育类个人展示软件",
+      "category": "concept",
+      "description": "一种旨在将用户打造成六边形战士的教育类软件概念。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95
+    },
+    {
+      "name": "六边形展示",
+      "category": "concept",
+      "description": "软件的核心展示形式，象征多方面能力的综合展示。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "计划",
+      "category": "concept",
+      "description": "教育类软件包含的功能模块之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "爱好",
+      "category": "concept",
+      "description": "教育类软件包含的功能模块之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "经验",
+      "category": "concept",
+      "description": "教育类软件包含的功能模块之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "知识库",
+      "category": "concept",
+      "description": "教育类软件包含的功能模块之一。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "生成 AI",
+      "category": "technology",
+      "description": "用于生成创意菜的核心技术。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "小程序",
+      "category": "technology",
+      "description": "食创速配所在的平台形态。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "食创速配",
+      "category": "tool",
+      "description": "一款生成 AI 创意菜的小程序产品，英文名 FoodSpark Mini。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "普通用户",
+      "category": "person",
+      "description": "食创速配的目标服务对象。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "name": "猎奇美食创意",
+      "category": "concept",
+      "description": "食创速配生成的核心内容产出，要求可执行。",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "relations": [
+    {
+      "source": "教育类个人展示软件",
+      "target": "六边形展示",
+      "relationship": "aims to achieve",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "教育类个人展示软件",
+      "target": "计划",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "教育类个人展示软件",
+      "target": "爱好",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "教育类个人展示软件",
+      "target": "经验",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "教育类个人展示软件",
+      "target": "知识库",
+      "relationship": "includes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "食创速配",
+      "target": "小程序",
+      "relationship": "is type of",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "食创速配",
+      "target": "生成 AI",
+      "relationship": "uses technology",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "食创速配",
+      "target": "猎奇美食创意",
+      "relationship": "generates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "食创速配",
+      "target": "普通用户",
+      "relationship": "targets",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "entities": [
+        "教育类个人展示软件",
+        "计划",
+        "爱好",
+        "经验",
+        "知识库"
+      ],
+      "relation": "component composition",
+      "label": "Education Software Modules",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "食创速配",
+        "生成 AI",
+        "小程序"
+      ],
+      "relation": "product definition",
+      "label": "FoodSpark Product Stack",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "entities": [
+        "食创速配",
+        "普通用户",
+        "猎奇美食创意"
+      ],
+      "relation": "service delivery flow",
+      "label": "FoodSpark Value Chain",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ]
+}
