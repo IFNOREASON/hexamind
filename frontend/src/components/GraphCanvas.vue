@@ -11,7 +11,9 @@ const {
   resetCamera, 
   zoomToFit, 
   setAutoRotate,
-  showNodeLabels
+  showNodeLabels,
+  showNodeLabelsAction,
+  hideNodeLabelsAction
 } = useForceGraph(graphContainer)
 
 onMounted(() => {
@@ -80,6 +82,22 @@ watch(() => graphStore.autoRotate, (v) => {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
         </svg>
       </button>
+      <button
+        v-if="!showNodeLabels"
+        class="glass p-2 rounded-lg hover:bg-white/10 transition-colors font-bold text-base"
+        title="显示节点名称 (S)"
+        @click="showNodeLabelsAction"
+      >
+        S
+      </button>
+      <button
+        v-else
+        class="glass p-2 rounded-lg hover:bg-white/10 transition-colors font-bold text-base"
+        title="隐藏节点名称 (H)"
+        @click="hideNodeLabelsAction"
+      >
+        H
+      </button>
     </div>
 
     <!-- Interaction hints -->
@@ -109,9 +127,13 @@ watch(() => graphStore.autoRotate, (v) => {
           <span class="w-4 h-4 rounded bg-slate-700 flex items-center justify-center text-[10px]">📂</span>
           <span>右键节点: 折叠/展开</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div v-if="!showNodeLabels" class="flex items-center gap-2">
           <span class="w-4 h-4 rounded bg-slate-700 flex items-center justify-center text-[10px]">⌨️</span>
-          <span>按 L 键: {{ showNodeLabels ? '隐藏' : '显示' }}节点名称</span>
+          <span>按 S 键: 显示节点名称</span>
+        </div>
+        <div v-else class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded bg-slate-700 flex items-center justify-center text-[10px]">⌨️</span>
+          <span>按 H 键: 隐藏节点名称</span>
         </div>
       </div>
     </div>

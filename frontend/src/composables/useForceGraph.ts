@@ -1,5 +1,6 @@
 import { ref, watch, type Ref, onBeforeUnmount } from 'vue'
 import ForceGraph3D from '3d-force-graph'
+import * as THREE from 'three'
 import { useGraphStore } from '@/stores/graph'
 import type { KnowledgeNode } from '@/types/graph'
 
@@ -48,6 +49,47 @@ export function useForceGraph(containerRef: Ref<HTMLElement | null>) {
   // Track all links for collapse/expand functionality
   const allLinks = ref<GraphLink[]>([])
   const allNodes = ref<GraphNode[]>([])
+  
+  // Store node labels for visibility toggling
+  const nodeLabelSprites = new Map<string, THREE.Sprite>()
+
+  function createTextSprite(text: string, color: string): THREE.Sprite {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')!
+    canvas.width = 256
+    canvas.height = 64
+    ctx.font = '24px Inter, sans-serif'
+    ctx.fillStyle = color
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    const displayText = text.length > 12 ? text.slice(0, 11) + '...' : text
+    ctx.fillText(displayText, 128, 32)
+
+    const texture = new THREE.CanvasTexture(canvas)
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: false,
+    })
+    const sprite = new THREE.Sprite(material)
+    sprite.scale.set(30, 8, 1)
+    return sprite
+  }
+
+  function createNodeObject(node: GraphNode): THREE.Object3D {
+    const group = new THREE.Group()
+    
+    // Create label sprite
+    const label = createTextSprite(node.name, node.color || '#60a5fa')
+    label.position.y = 12
+    label.visible = showNodeLabels.value
+    group.add(label)
+    
+    // Store reference for visibility toggling
+    nodeLabelSprites.set(node.id, label)
+    
+    return group
+  }
 
   function initGraph() {
     if (!containerRef.value || isInitialized.value) {
@@ -70,7 +112,8 @@ export function useForceGraph(containerRef: Ref<HTMLElement | null>) {
       .height(height)
       .backgroundColor('rgba(0,0,0,0)')
       .showNavInfo(false)
-      .nodeLabel((node: GraphNode) => showNodeLabels.value ? node.name : '')
+      .nodeThreeObject((node: GraphNode) => createNodeObject(node))
+      .nodeThreeObjectExtend(true)
       .nodeColor((node: GraphNode) => getNodeColor(node))
       .nodeRelSize(6)
       .nodeResolution(16)
@@ -121,10 +164,18 @@ export function useForceGraph(containerRef: Ref<HTMLElement | null>) {
     console.log('[useForceGraph] store has', graphStore.nodes.length, 'nodes and', graphStore.links.length, 'links')
     refreshGraph()
 
-    // Setup keyboard shortcut for toggling node labels (press 'L' key)
+    // Setup keyboard shortcut for toggling node labels
+    // S key: only shows labels (when hidden)
+    // H key: only hides labels (when shown)
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'l' || event.key === 'L') {
-        toggleNodeLabels()
+      if (event.key === 's' || event.key === 'S') {
+        if (!showNodeLabels.value) {
+          setNodeLabelsVisible(true)
+        }
+      } else if (event.key === 'h' || event.key === 'H') {
+        if (showNodeLabels.value) {
+          setNodeLabelsVisible(false)
+        }
       }
     }
     document.addEventListener('keydown', handleKeyDown)
@@ -135,12 +186,12 @@ export function useForceGraph(containerRef: Ref<HTMLElement | null>) {
     }
   }
 
-  function toggleNodeLabels() {
-    showNodeLabels.value = !showNodeLabels.value
-    console.log('[useForceGraph] node labels:', showNodeLabels.value ? 'shown' : 'hidden')
-    if (graphInstance.value) {
-      graphInstance.value.refresh()
-    }
+  function setNodeLabelsVisible(visible: boolean) {
+    showNodeLabels.value = visible
+    console.log('[useForceGraph] node labels:', visible ? 'shown' : 'hidden')
+    nodeLabelSprites.forEach((sprite) => {
+      sprite.visible = visible
+    })
   }
 
   function getNodeColor(node: GraphNode): string {
@@ -421,6 +472,18 @@ export function useForceGraph(containerRef: Ref<HTMLElement | null>) {
     }
   })
 
+  function showNodeLabelsAction() {
+    if (!showNodeLabels.value) {
+      setNodeLabelsVisible(true)
+    }
+  }
+
+  function hideNodeLabelsAction() {
+    if (showNodeLabels.value) {
+      setNodeLabelsVisible(false)
+    }
+  }
+
   return {
     graphInstance,
     isInitialized,
@@ -433,7 +496,8 @@ export function useForceGraph(containerRef: Ref<HTMLElement | null>) {
     collapsedNodes,
     refreshGraph,
     getChildNodeIds,
-    toggleNodeLabels,
+    showNodeLabelsAction,
+    hideNodeLabelsAction,
     showNodeLabels,
   }
 }
