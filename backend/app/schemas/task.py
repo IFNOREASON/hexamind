@@ -99,3 +99,168 @@ class PptGenerationStatusOut(BaseModel):
     generation_id: int
     status: str  # generating, ready, failed
     message: str
+
+
+# Video Generation Schemas
+class VideoScene(BaseModel):
+    scene_number: int
+    title: str
+    duration: str
+    visuals: str
+    narration: str
+    b_roll: str | None = None
+
+
+class VideoScript(BaseModel):
+    title: str
+    introduction: str
+    scenes: list[VideoScene]
+    conclusion: str
+    key_takeaways: list[str]
+
+
+class VideoGenerationOut(BaseModel):
+    id: int
+    task_id: int
+    title: str
+    status: str  # generating, ready, failed
+    script: VideoScript | None = None
+    file_path: str | None = None
+    error: str | None = None
+    created_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class VideoGenerationStatusOut(BaseModel):
+    generation_id: int
+    status: str  # generating, ready, failed
+    message: str
+
+
+# Animation Generation Schemas
+class AnimationKeyFrame(BaseModel):
+    frame_number: int
+    timestamp: str
+    visual_description: str
+    animation_type: str
+    narration: str
+
+
+class AnimationConcept(BaseModel):
+    title: str
+    animation_type: str
+    visual_style: str
+    duration: str
+    target_audience: str
+    learning_objectives: list[str]
+    key_frames: list[AnimationKeyFrame]
+    voiceover_style: str
+    background_music: str
+    transitions: list[str]
+
+
+class AnimationGenerationOut(BaseModel):
+    id: int
+    task_id: int
+    title: str
+    status: str  # generating, ready, failed
+    concept: AnimationConcept | None = None
+    file_path: str | None = None
+    error: str | None = None
+    created_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class AnimationGenerationStatusOut(BaseModel):
+    generation_id: int
+    status: str  # generating, ready, failed
+    message: str
+
+
+# Podcast Generation Schemas
+class PodcastSegment(BaseModel):
+    segment_number: int
+    title: str
+    duration: str
+    type: str  # monologue, interview, discussion, example
+    transcript: str
+    speaker_notes: str | None = None
+    sound_effects: list[str] | None = None
+
+
+class PodcastScript(BaseModel):
+    title: str
+    host_persona: str
+    introduction: str
+    segments: list[PodcastSegment]
+    conclusion: str
+    key_takeaways: list[str]
+    recommended_resources: list[str]
+    estimated_duration: str
+
+
+class PodcastGenerationOut(BaseModel):
+    id: int
+    task_id: int
+    title: str
+    status: str  # generating, ready, failed
+    script: PodcastScript | None = None
+    file_path: str | None = None
+    error: str | None = None
+    created_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class PodcastGenerationStatusOut(BaseModel):
+    generation_id: int
+    status: str  # generating, ready, failed
+    message: str
+
+
+# Mindmap Generation Schemas
+class MindmapNode(BaseModel):
+    id: str
+    label: str
+    level: int
+    parent: str | None = None
+    color: str
+    icon: str | None = None
+    description: str | None = None
+
+
+class MindmapEdge(BaseModel):
+    source: str
+    target: str
+    label: str | None = None
+
+
+class MindmapData(BaseModel):
+    title: str
+    center_topic: str
+    nodes: list[MindmapNode]
+    edges: list[MindmapEdge]
+    legend: dict[str, str]
+    layout: str
+
+
+class MindmapGenerationOut(BaseModel):
+    id: int
+    task_id: int
+    title: str
+    status: str  # generating, ready, failed
+    nodes: list[MindmapNode] | None = None
+    edges: list[MindmapEdge] | None = None
+    file_path: str | None = None
+    error: str | None = None
+    created_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class MindmapGenerationStatusOut(BaseModel):
+    generation_id: int
+    status: str  # generating, ready, failed
+    message: str

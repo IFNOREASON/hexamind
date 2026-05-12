@@ -43,3 +43,59 @@ class PptGeneration(Base):
     status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
     error = Column(String(500), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
+
+
+class VideoGeneration(Base):
+    __tablename__ = "video_generations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_id = Column(Integer, ForeignKey("learning_tasks.id"), nullable=False)
+    title = Column(String(255), nullable=False, default="讲解视频")
+    script = Column(JSON, nullable=True)  # Video script content
+    scenes = Column(JSON, nullable=True)  # Scene descriptions
+    file_path = Column(String(500), nullable=True)  # Path to saved video file
+    status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
+    error = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class AnimationGeneration(Base):
+    __tablename__ = "animation_generations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_id = Column(Integer, ForeignKey("learning_tasks.id"), nullable=False)
+    title = Column(String(255), nullable=False, default="动画演示")
+    concept = Column(JSON, nullable=True)  # Animation concept and description
+    timeline = Column(JSON, nullable=True)  # Animation timeline
+    file_path = Column(String(500), nullable=True)  # Path to saved animation file
+    status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
+    error = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class PodcastGeneration(Base):
+    __tablename__ = "podcast_generations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_id = Column(Integer, ForeignKey("learning_tasks.id"), nullable=False)
+    title = Column(String(255), nullable=False, default="音频播客")
+    script = Column(JSON, nullable=True)  # Podcast script content
+    segments = Column(JSON, nullable=True)  # Audio segments
+    file_path = Column(String(500), nullable=True)  # Path to saved audio file
+    status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
+    error = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class MindmapGeneration(Base):
+    __tablename__ = "mindmap_generations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_id = Column(Integer, ForeignKey("learning_tasks.id"), nullable=False)
+    title = Column(String(255), nullable=False, default="思维导图")
+    nodes = Column(JSON, nullable=True)  # Mindmap nodes
+    edges = Column(JSON, nullable=True)  # Mindmap connections
+    file_path = Column(String(500), nullable=True)  # Path to saved mindmap file
+    status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
+    error = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.now())

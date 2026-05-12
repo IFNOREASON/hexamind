@@ -1,6 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { LearningTask, QuizQuestion, QuizResult, PptGeneration, StudyTab } from '@/types/task'
+import type { 
+  LearningTask, 
+  QuizQuestion, 
+  QuizResult, 
+  PptGeneration, 
+  StudyTab,
+  VideoGeneration,
+  AnimationGeneration,
+  PodcastGeneration,
+  MindmapGeneration
+} from '@/types/task'
 import * as taskApi from '@/api/task'
 
 export const useTaskStore = defineStore('task', () => {
@@ -33,6 +43,26 @@ export const useTaskStore = defineStore('task', () => {
   const pptGenerations = ref<PptGeneration[]>([])
   const pptLoading = ref(false)
   const currentPpt = ref<PptGeneration | null>(null)
+
+  // Video state
+  const videoGenerations = ref<VideoGeneration[]>([])
+  const videoLoading = ref(false)
+  const currentVideo = ref<VideoGeneration | null>(null)
+
+  // Animation state
+  const animationGenerations = ref<AnimationGeneration[]>([])
+  const animationLoading = ref(false)
+  const currentAnimation = ref<AnimationGeneration | null>(null)
+
+  // Podcast state
+  const podcastGenerations = ref<PodcastGeneration[]>([])
+  const podcastLoading = ref(false)
+  const currentPodcast = ref<PodcastGeneration | null>(null)
+
+  // Mindmap state
+  const mindmapGenerations = ref<MindmapGeneration[]>([])
+  const mindmapLoading = ref(false)
+  const currentMindmap = ref<MindmapGeneration | null>(null)
 
   // Study tabs state
   const studyTabs = ref<StudyTab[]>([
@@ -74,6 +104,14 @@ export const useTaskStore = defineStore('task', () => {
     activeStudyTabId.value = 'materials'
     pptGenerations.value = []
     currentPpt.value = null
+    videoGenerations.value = []
+    currentVideo.value = null
+    animationGenerations.value = []
+    currentAnimation.value = null
+    podcastGenerations.value = []
+    currentPodcast.value = null
+    mindmapGenerations.value = []
+    currentMindmap.value = null
   }
 
   function closeStudyPage() {
@@ -85,6 +123,14 @@ export const useTaskStore = defineStore('task', () => {
     activeStudyTabId.value = 'materials'
     pptGenerations.value = []
     currentPpt.value = null
+    videoGenerations.value = []
+    currentVideo.value = null
+    animationGenerations.value = []
+    currentAnimation.value = null
+    podcastGenerations.value = []
+    currentPodcast.value = null
+    mindmapGenerations.value = []
+    currentMindmap.value = null
   }
 
   function markMaterialsViewed() {
@@ -290,6 +336,78 @@ export const useTaskStore = defineStore('task', () => {
     currentPpt.value = ppt
   }
 
+  function openVideoTab(video: VideoGeneration) {
+    const existingTab = studyTabs.value.find(t => t.type === 'video' && t.videoId === video.id)
+    if (existingTab) {
+      activeStudyTabId.value = existingTab.id
+      return
+    }
+
+    const newTab: StudyTab = {
+      id: `video-${video.id}`,
+      type: 'video',
+      title: video.title || '讲解视频',
+      videoId: video.id
+    }
+    studyTabs.value.push(newTab)
+    activeStudyTabId.value = newTab.id
+    currentVideo.value = video
+  }
+
+  function openAnimationTab(animation: AnimationGeneration) {
+    const existingTab = studyTabs.value.find(t => t.type === 'animation' && t.animationId === animation.id)
+    if (existingTab) {
+      activeStudyTabId.value = existingTab.id
+      return
+    }
+
+    const newTab: StudyTab = {
+      id: `animation-${animation.id}`,
+      type: 'animation',
+      title: animation.title || '动画演示',
+      animationId: animation.id
+    }
+    studyTabs.value.push(newTab)
+    activeStudyTabId.value = newTab.id
+    currentAnimation.value = animation
+  }
+
+  function openPodcastTab(podcast: PodcastGeneration) {
+    const existingTab = studyTabs.value.find(t => t.type === 'podcast' && t.podcastId === podcast.id)
+    if (existingTab) {
+      activeStudyTabId.value = existingTab.id
+      return
+    }
+
+    const newTab: StudyTab = {
+      id: `podcast-${podcast.id}`,
+      type: 'podcast',
+      title: podcast.title || '音频播客',
+      podcastId: podcast.id
+    }
+    studyTabs.value.push(newTab)
+    activeStudyTabId.value = newTab.id
+    currentPodcast.value = podcast
+  }
+
+  function openMindmapTab(mindmap: MindmapGeneration) {
+    const existingTab = studyTabs.value.find(t => t.type === 'mindmap' && t.mindmapId === mindmap.id)
+    if (existingTab) {
+      activeStudyTabId.value = existingTab.id
+      return
+    }
+
+    const newTab: StudyTab = {
+      id: `mindmap-${mindmap.id}`,
+      type: 'mindmap',
+      title: mindmap.title || '思维导图',
+      mindmapId: mindmap.id
+    }
+    studyTabs.value.push(newTab)
+    activeStudyTabId.value = newTab.id
+    currentMindmap.value = mindmap
+  }
+
   function closeStudyTab(tabId: string) {
     if (tabId === 'materials') return
 
@@ -308,6 +426,18 @@ export const useTaskStore = defineStore('task', () => {
 
     if (currentPpt.value && studyTabs.value.every(t => t.pptId !== currentPpt.value?.id)) {
       currentPpt.value = null
+    }
+    if (currentVideo.value && studyTabs.value.every(t => t.videoId !== currentVideo.value?.id)) {
+      currentVideo.value = null
+    }
+    if (currentAnimation.value && studyTabs.value.every(t => t.animationId !== currentAnimation.value?.id)) {
+      currentAnimation.value = null
+    }
+    if (currentPodcast.value && studyTabs.value.every(t => t.podcastId !== currentPodcast.value?.id)) {
+      currentPodcast.value = null
+    }
+    if (currentMindmap.value && studyTabs.value.every(t => t.mindmapId !== currentMindmap.value?.id)) {
+      currentMindmap.value = null
     }
   }
 
@@ -388,6 +518,315 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
 
+  // ── Video Generation ──
+  async function loadVideoList() {
+    if (!currentTask.value) return
+    try {
+      videoGenerations.value = await taskApi.listVideo(currentTask.value.id)
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load video list:', e)
+    }
+  }
+
+  async function loadVideoDetail(videoId: number) {
+    if (!currentTask.value) return
+    try {
+      const video = await taskApi.getVideoDetail(currentTask.value.id, videoId)
+      currentVideo.value = video
+      return video
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load video detail:', e)
+      return null
+    }
+  }
+
+  async function generateVideo() {
+    if (!currentTask.value) {
+      console.warn('[TaskStore] No current task for video generation')
+      return
+    }
+
+    console.log('[TaskStore] Starting video generation for task:', currentTask.value.id, currentTask.value.name)
+    videoLoading.value = true
+
+    try {
+      const result = await taskApi.generateVideo(currentTask.value.id)
+      console.log('[TaskStore] Video generation started:', result)
+
+      const maxAttempts = 120
+      let attempts = 0
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const status = await taskApi.getVideoStatus(currentTask.value.id)
+        console.log('[TaskStore] Video status:', status.status, `(${attempts + 1}s)`)
+
+        if (status.status === 'ready') {
+          if (status.script && status.script.scenes && status.script.scenes.length > 0) {
+            await loadVideoList()
+            openVideoTab(status)
+            console.log('[TaskStore] Video ready with', status.script.scenes.length, 'scenes')
+            return
+          } else {
+            alert('视频生成失败：未生成有效脚本，请检查任务是否有关联的知识资料')
+            return
+          }
+        } else if (status.status === 'failed') {
+          alert('视频生成失败：' + (status.error || '未知错误'))
+          return
+        }
+
+        attempts++
+      }
+
+      alert('视频生成超时：LLM 响应时间过长，请稍后重试')
+    } catch (error: any) {
+      console.error('[TaskStore] Video generation failed:', error)
+      if (error.code === 'ECONNABORTED') {
+        alert('启动视频生成超时，请稍后重试')
+      } else if (error.response?.status === 500) {
+        alert('视频生成失败：后端服务错误，请检查 LLM API Key 配置')
+      } else {
+        alert('视频生成失败：' + (error.message || '未知错误'))
+      }
+    } finally {
+      videoLoading.value = false
+    }
+  }
+
+  // ── Animation Generation ──
+  async function loadAnimationList() {
+    if (!currentTask.value) return
+    try {
+      animationGenerations.value = await taskApi.listAnimation(currentTask.value.id)
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load animation list:', e)
+    }
+  }
+
+  async function loadAnimationDetail(animationId: number) {
+    if (!currentTask.value) return
+    try {
+      const animation = await taskApi.getAnimationDetail(currentTask.value.id, animationId)
+      currentAnimation.value = animation
+      return animation
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load animation detail:', e)
+      return null
+    }
+  }
+
+  async function generateAnimation() {
+    if (!currentTask.value) {
+      console.warn('[TaskStore] No current task for animation generation')
+      return
+    }
+
+    console.log('[TaskStore] Starting animation generation for task:', currentTask.value.id, currentTask.value.name)
+    animationLoading.value = true
+
+    try {
+      const result = await taskApi.generateAnimation(currentTask.value.id)
+      console.log('[TaskStore] Animation generation started:', result)
+
+      const maxAttempts = 120
+      let attempts = 0
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const status = await taskApi.getAnimationStatus(currentTask.value.id)
+        console.log('[TaskStore] Animation status:', status.status, `(${attempts + 1}s)`)
+
+        if (status.status === 'ready') {
+          if (status.concept && ((status.concept.key_frames && status.concept.key_frames.length > 0) || (status.concept.timeline && status.concept.timeline.length > 0))) {
+            await loadAnimationList()
+            openAnimationTab(status)
+            const count = (status.concept.key_frames && status.concept.key_frames.length) || (status.concept.timeline && status.concept.timeline.length) || 0
+            console.log('[TaskStore] Animation ready with', count, 'frames')
+            return
+          } else {
+            alert('动画生成失败：未生成有效概念，请检查任务是否有关联的知识资料')
+            return
+          }
+        } else if (status.status === 'failed') {
+          alert('动画生成失败：' + (status.error || '未知错误'))
+          return
+        }
+
+        attempts++
+      }
+
+      alert('动画生成超时：LLM 响应时间过长，请稍后重试')
+    } catch (error: any) {
+      console.error('[TaskStore] Animation generation failed:', error)
+      if (error.code === 'ECONNABORTED') {
+        alert('启动动画生成超时，请稍后重试')
+      } else if (error.response?.status === 500) {
+        alert('动画生成失败：后端服务错误，请检查 LLM API Key 配置')
+      } else {
+        alert('动画生成失败：' + (error.message || '未知错误'))
+      }
+    } finally {
+      animationLoading.value = false
+    }
+  }
+
+  // ── Podcast Generation ──
+  async function loadPodcastList() {
+    if (!currentTask.value) return
+    try {
+      podcastGenerations.value = await taskApi.listPodcast(currentTask.value.id)
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load podcast list:', e)
+    }
+  }
+
+  async function loadPodcastDetail(podcastId: number) {
+    if (!currentTask.value) return
+    try {
+      const podcast = await taskApi.getPodcastDetail(currentTask.value.id, podcastId)
+      currentPodcast.value = podcast
+      return podcast
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load podcast detail:', e)
+      return null
+    }
+  }
+
+  async function generatePodcast() {
+    if (!currentTask.value) {
+      console.warn('[TaskStore] No current task for podcast generation')
+      return
+    }
+
+    console.log('[TaskStore] Starting podcast generation for task:', currentTask.value.id, currentTask.value.name)
+    podcastLoading.value = true
+
+    try {
+      const result = await taskApi.generatePodcast(currentTask.value.id)
+      console.log('[TaskStore] Podcast generation started:', result)
+
+      const maxAttempts = 120
+      let attempts = 0
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const status = await taskApi.getPodcastStatus(currentTask.value.id)
+        console.log('[TaskStore] Podcast status:', status.status, `(${attempts + 1}s)`)
+
+        if (status.status === 'ready') {
+          if (status.script && status.script.segments && status.script.segments.length > 0) {
+            await loadPodcastList()
+            openPodcastTab(status)
+            console.log('[TaskStore] Podcast ready with', status.script.segments.length, 'segments')
+            return
+          } else {
+            alert('播客生成失败：未生成有效脚本，请检查任务是否有关联的知识资料')
+            return
+          }
+        } else if (status.status === 'failed') {
+          alert('播客生成失败：' + (status.error || '未知错误'))
+          return
+        }
+
+        attempts++
+      }
+
+      alert('播客生成超时：LLM 响应时间过长，请稍后重试')
+    } catch (error: any) {
+      console.error('[TaskStore] Podcast generation failed:', error)
+      if (error.code === 'ECONNABORTED') {
+        alert('启动播客生成超时，请稍后重试')
+      } else if (error.response?.status === 500) {
+        alert('播客生成失败：后端服务错误，请检查 LLM API Key 配置')
+      } else {
+        alert('播客生成失败：' + (error.message || '未知错误'))
+      }
+    } finally {
+      podcastLoading.value = false
+    }
+  }
+
+  // ── Mindmap Generation ──
+  async function loadMindmapList() {
+    if (!currentTask.value) return
+    try {
+      mindmapGenerations.value = await taskApi.listMindmap(currentTask.value.id)
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load mindmap list:', e)
+    }
+  }
+
+  async function loadMindmapDetail(mindmapId: number) {
+    if (!currentTask.value) return
+    try {
+      const mindmap = await taskApi.getMindmapDetail(currentTask.value.id, mindmapId)
+      currentMindmap.value = mindmap
+      return mindmap
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load mindmap detail:', e)
+      return null
+    }
+  }
+
+  async function generateMindmap() {
+    if (!currentTask.value) {
+      console.warn('[TaskStore] No current task for mindmap generation')
+      return
+    }
+
+    console.log('[TaskStore] Starting mindmap generation for task:', currentTask.value.id, currentTask.value.name)
+    mindmapLoading.value = true
+
+    try {
+      const result = await taskApi.generateMindmap(currentTask.value.id)
+      console.log('[TaskStore] Mindmap generation started:', result)
+
+      const maxAttempts = 120
+      let attempts = 0
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const status = await taskApi.getMindmapStatus(currentTask.value.id)
+        console.log('[TaskStore] Mindmap status:', status.status, `(${attempts + 1}s)`)
+
+        if (status.status === 'ready') {
+          if (status.nodes && status.nodes.length > 0) {
+            await loadMindmapList()
+            openMindmapTab(status)
+            console.log('[TaskStore] Mindmap ready with', status.nodes.length, 'nodes')
+            return
+          } else {
+            alert('思维导图生成失败：未生成有效节点，请检查任务是否有关联的知识资料')
+            return
+          }
+        } else if (status.status === 'failed') {
+          alert('思维导图生成失败：' + (status.error || '未知错误'))
+          return
+        }
+
+        attempts++
+      }
+
+      alert('思维导图生成超时：LLM 响应时间过长，请稍后重试')
+    } catch (error: any) {
+      console.error('[TaskStore] Mindmap generation failed:', error)
+      if (error.code === 'ECONNABORTED') {
+        alert('启动思维导图生成超时，请稍后重试')
+      } else if (error.response?.status === 500) {
+        alert('思维导图生成失败：后端服务错误，请检查 LLM API Key 配置')
+      } else {
+        alert('思维导图生成失败：' + (error.message || '未知错误'))
+      }
+    } finally {
+      mindmapLoading.value = false
+    }
+  }
+
   return {
     // State
     tasks,
@@ -408,6 +847,18 @@ export const useTaskStore = defineStore('task', () => {
     pptGenerations,
     pptLoading,
     currentPpt,
+    videoGenerations,
+    videoLoading,
+    currentVideo,
+    animationGenerations,
+    animationLoading,
+    currentAnimation,
+    podcastGenerations,
+    podcastLoading,
+    currentPodcast,
+    mindmapGenerations,
+    mindmapLoading,
+    currentMindmap,
     studyTabs,
     activeStudyTabId,
     activeStudyTab,
@@ -435,9 +886,25 @@ export const useTaskStore = defineStore('task', () => {
     advanceTaskStage,
     setActiveStudyTab,
     openPptTab,
+    openVideoTab,
+    openAnimationTab,
+    openPodcastTab,
+    openMindmapTab,
     closeStudyTab,
     loadPptList,
     loadPptDetail,
     generatePpt,
+    loadVideoList,
+    loadVideoDetail,
+    generateVideo,
+    loadAnimationList,
+    loadAnimationDetail,
+    generateAnimation,
+    loadPodcastList,
+    loadPodcastDetail,
+    generatePodcast,
+    loadMindmapList,
+    loadMindmapDetail,
+    generateMindmap,
   }
 })

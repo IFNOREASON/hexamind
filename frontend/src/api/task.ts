@@ -1,5 +1,19 @@
 import apiClient from './client'
-import type { LearningTask, QuizQuestion, QuizResult, PptGeneration, PptGenerationStatus } from '@/types/task'
+import type { 
+  LearningTask, 
+  QuizQuestion, 
+  QuizResult, 
+  PptGeneration, 
+  PptGenerationStatus,
+  VideoGeneration,
+  VideoGenerationStatus,
+  AnimationGeneration,
+  AnimationGenerationStatus,
+  PodcastGeneration,
+  PodcastGenerationStatus,
+  MindmapGeneration,
+  MindmapGenerationStatus
+} from '@/types/task'
 
 export async function fetchTasks(): Promise<LearningTask[]> {
   const { data } = await apiClient.get<LearningTask[]>('/tasks')
@@ -66,5 +80,97 @@ export async function listPpt(taskId: number): Promise<PptGeneration[]> {
 
 export async function getPptDetail(taskId: number, pptId: number): Promise<PptGeneration> {
   const { data } = await apiClient.get<PptGeneration>(`/tasks/${taskId}/ppt/${pptId}`)
+  return data
+}
+
+// Video Generation APIs
+export async function generateVideo(taskId: number): Promise<VideoGenerationStatus> {
+  const { data } = await apiClient.post<VideoGenerationStatus>(`/tasks/${taskId}/video/generate`, null, {
+    timeout: 10000,
+  })
+  return data
+}
+
+export async function getVideoStatus(taskId: number): Promise<VideoGeneration> {
+  const { data } = await apiClient.get<VideoGeneration>(`/tasks/${taskId}/video/status`)
+  return data
+}
+
+export async function listVideo(taskId: number): Promise<VideoGeneration[]> {
+  const { data } = await apiClient.get<VideoGeneration[]>(`/tasks/${taskId}/video`)
+  return data
+}
+
+export async function getVideoDetail(taskId: number, videoId: number): Promise<VideoGeneration> {
+  const { data } = await apiClient.get<VideoGeneration>(`/tasks/${taskId}/video/${videoId}`)
+  return data
+}
+
+// Animation Generation APIs
+export async function generateAnimation(taskId: number): Promise<AnimationGenerationStatus> {
+  const { data } = await apiClient.post<AnimationGenerationStatus>(`/tasks/${taskId}/animation/generate`, null, {
+    timeout: 10000,
+  })
+  return data
+}
+
+export async function getAnimationStatus(taskId: number): Promise<AnimationGeneration> {
+  const { data } = await apiClient.get<AnimationGeneration>(`/tasks/${taskId}/animation/status`)
+  return data
+}
+
+export async function listAnimation(taskId: number): Promise<AnimationGeneration[]> {
+  const { data } = await apiClient.get<AnimationGeneration[]>(`/tasks/${taskId}/animation`)
+  return data
+}
+
+export async function getAnimationDetail(taskId: number, animationId: number): Promise<AnimationGeneration> {
+  const { data } = await apiClient.get<AnimationGeneration>(`/tasks/${taskId}/animation/${animationId}`)
+  return data
+}
+
+// Podcast Generation APIs
+export async function generatePodcast(taskId: number): Promise<PodcastGenerationStatus> {
+  const { data } = await apiClient.post<PodcastGenerationStatus>(`/tasks/${taskId}/podcast/generate`, null, {
+    timeout: 10000,
+  })
+  return data
+}
+
+export async function getPodcastStatus(taskId: number): Promise<PodcastGeneration> {
+  const { data } = await apiClient.get<PodcastGeneration>(`/tasks/${taskId}/podcast/status`)
+  return data
+}
+
+export async function listPodcast(taskId: number): Promise<PodcastGeneration[]> {
+  const { data } = await apiClient.get<PodcastGeneration[]>(`/tasks/${taskId}/podcast`)
+  return data
+}
+
+export async function getPodcastDetail(taskId: number, podcastId: number): Promise<PodcastGeneration> {
+  const { data } = await apiClient.get<PodcastGeneration>(`/tasks/${taskId}/podcast/${podcastId}`)
+  return data
+}
+
+// Mindmap Generation APIs
+export async function generateMindmap(taskId: number): Promise<MindmapGenerationStatus> {
+  const { data } = await apiClient.post<MindmapGenerationStatus>(`/tasks/${taskId}/mindmap/generate`, null, {
+    timeout: 10000,
+  })
+  return data
+}
+
+export async function getMindmapStatus(taskId: number): Promise<MindmapGeneration> {
+  const { data } = await apiClient.get<MindmapGeneration>(`/tasks/${taskId}/mindmap/status`)
+  return data
+}
+
+export async function listMindmap(taskId: number): Promise<MindmapGeneration[]> {
+  const { data } = await apiClient.get<MindmapGeneration[]>(`/tasks/${taskId}/mindmap`)
+  return data
+}
+
+export async function getMindmapDetail(taskId: number, mindmapId: number): Promise<MindmapGeneration> {
+  const { data } = await apiClient.get<MindmapGeneration>(`/tasks/${taskId}/mindmap/${mindmapId}`)
   return data
 }

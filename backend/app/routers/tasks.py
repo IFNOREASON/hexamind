@@ -605,3 +605,719 @@ async def download_ppt(task_id: int, ppt_id: int, db: AsyncSession = Depends(get
         filename=filename,
         media_type="text/html",
     )
+
+
+async def _generate_content_background(
+    generation_id: int,
+    task_id: int,
+    content_type: str,
+    node_name: str,
+    node_description: str,
+    source_content: str,
+    current_stage: int,
+    difficulty: str,
+):
+    """Background task to generate content."""
+    from app.database import async_session
+    from app.models.learning_task import VideoGeneration, AnimationGeneration, PodcastGeneration, MindmapGeneration
+    from app.services.content_generators import save_content_as_html
+
+    agent_map = {
+        'video': 'run_video_generation',
+        'animation': 'run_animation_generation',
+        'podcast': 'run_podcast_generation',
+        'mindmap': 'run_mindmap_generation',
+    }
+
+    model_map = {
+        'video': VideoGeneration,
+        'animation': AnimationGeneration,
+        'podcast': PodcastGeneration,
+        'mindmap': MindmapGeneration,
+    }
+
+    data_field_map = {
+        'video': 'script',
+        'animation': 'concept',
+        'podcast': 'script',
+        'mindmap': 'nodes',
+    }
+
+    Model = model_map[content_type]
+
+    async with async_session() as db:
+        try:
+            # Import agent function with better error handling
+            try:
+                agent_module = __import__(f'app.agents.{content_type}_agent', fromlist=[agent_map[content_type]])
+                agent_func = getattr(agent_module, agent_map[content_type])
+            except (ImportError, AttributeError) as import_error:
+                logger.error(f"Failed to import agent for {content_type}: {import_error}")
+                generation = (await db.execute(select(Model).where(Model.id == generation_id))).scalar_one_or_none()
+                if generation:
+                    generation.status = "failed"
+                    generation.error = f"Agent导入失败: {str(import_error)}"
+                    await db.commit()
+                return
+
+            try:
+                content_data = await asyncio.wait_for(
+                    agent_func(
+                        node_name=node_name,
+                        node_description=node_description,
+                        source_content=source_content,
+                        current_stage=current_stage,
+                        difficulty=difficulty,
+                    ),
+                    timeout=180.0
+                )
+            except asyncio.TimeoutError:
+                logger.error(f"{content_type} generation timeout for generation {generation_id}")
+                generation = (await db.execute(select(Model).where(Model.id == generation_id))).scalar_one_or_none()
+                if generation:
+                    generation.status = "failed"
+                    generation.error = "生成超时，请稍后重试"
+                    await db.commit()
+                return
+            except Exception as agent_error:
+                logger.error(f"Agent execution failed for {content_type}: {agent_error}")
+                generation = (await db.execute(select(Model).where(Model.id == generation_id))).scalar_one_or_none()
+                if generation:
+                    generation.status = "failed"
+                    generation.error = f"Agent执行失败: {str(agent_error)[:200]}"
+                    await db.commit()
+                return
+
+            if not content_data:
+                raise Exception(f"生成的{content_type}内容为空")
+
+            title = content_data.get("title", f"{node_name} - {content_type}")
+
+            generation = (await db.execute(select(Model).where(Model.id == generation_id))).scalar_one_or_none()
+            if generation:
+                data_field = data_field_map[content_type]
+                setattr(generation, data_field, content_data)
+                generation.status = "ready"
+                generation.title = title
+
+                try:
+                    file_path = await save_content_as_html(
+                        content_data=content_data,
+                        content_type=content_type,
+                        task_id=task_id,
+                        title=title,
+                    )
+                    generation.file_path = file_path
+                except Exception as save_error:
+                    logger.error(f"Failed to save {content_type} HTML file: {save_error}")
+
+                await db.commit()
+                logger.info(f"{content_type} generation completed for generation {generation_id}")
+        except Exception as e:
+            logger.error(f"{content_type} generation failed for generation {generation_id}: {e}")
+            generation = (await db.execute(select(Model).where(Model.id == generation_id))).scalar_one_or_none()
+            if generation:
+                generation.status = "failed"
+                generation.error = str(e)[:500]
+                await db.commit()
+
+
+@router.post("/{task_id}/video/generate", status_code=202)
+async def generate_video(task_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    """Start video script generation asynchronously."""
+    from app.models.learning_task import VideoGeneration
+
+    task = (await db.execute(select(LearningTask).where(LearningTask.id == task_id))).scalar_one_or_none()
+    if not task:
+        raise HTTPException(404, "学习任务不存在")
+
+    node = (await db.execute(select(GraphNode).where(GraphNode.id == task.node_id))).scalar_one_or_none()
+    if not node:
+        raise HTTPException(404, "关联的知识节点不存在")
+
+    source_content = ""
+    source = (await db.execute(select(Source).where(Source.id == node.source_id))).scalar_one_or_none()
+    if source and source.content_text:
+        source_content = source.content_text
+
+    generation = VideoGeneration(
+        task_id=task.id,
+        title=f"{node.name} - 讲解视频",
+        status="generating",
+    )
+    db.add(generation)
+    await db.commit()
+    await db.refresh(generation)
+
+    background_tasks.add_task(
+        _generate_content_background,
+        generation_id=generation.id,
+        task_id=task.id,
+        content_type="video",
+        node_name=node.name,
+        node_description=node.description or "",
+        source_content=source_content,
+        current_stage=task.current_stage,
+        difficulty=task.difficulty,
+    )
+
+    return {"generation_id": generation.id, "status": "generating", "message": "视频脚本正在生成中，请查询状态接口获取结果"}
+
+
+@router.post("/{task_id}/animation/generate", status_code=202)
+async def generate_animation(task_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    """Start animation concept generation asynchronously."""
+    from app.models.learning_task import AnimationGeneration
+
+    task = (await db.execute(select(LearningTask).where(LearningTask.id == task_id))).scalar_one_or_none()
+    if not task:
+        raise HTTPException(404, "学习任务不存在")
+
+    node = (await db.execute(select(GraphNode).where(GraphNode.id == task.node_id))).scalar_one_or_none()
+    if not node:
+        raise HTTPException(404, "关联的知识节点不存在")
+
+    source_content = ""
+    source = (await db.execute(select(Source).where(Source.id == node.source_id))).scalar_one_or_none()
+    if source and source.content_text:
+        source_content = source.content_text
+
+    generation = AnimationGeneration(
+        task_id=task.id,
+        title=f"{node.name} - 动画演示",
+        status="generating",
+    )
+    db.add(generation)
+    await db.commit()
+    await db.refresh(generation)
+
+    background_tasks.add_task(
+        _generate_content_background,
+        generation_id=generation.id,
+        task_id=task.id,
+        content_type="animation",
+        node_name=node.name,
+        node_description=node.description or "",
+        source_content=source_content,
+        current_stage=task.current_stage,
+        difficulty=task.difficulty,
+    )
+
+    return {"generation_id": generation.id, "status": "generating", "message": "动画演示正在生成中，请查询状态接口获取结果"}
+
+
+@router.post("/{task_id}/podcast/generate", status_code=202)
+async def generate_podcast(task_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    """Start podcast script generation asynchronously."""
+    from app.models.learning_task import PodcastGeneration
+
+    task = (await db.execute(select(LearningTask).where(LearningTask.id == task_id))).scalar_one_or_none()
+    if not task:
+        raise HTTPException(404, "学习任务不存在")
+
+    node = (await db.execute(select(GraphNode).where(GraphNode.id == task.node_id))).scalar_one_or_none()
+    if not node:
+        raise HTTPException(404, "关联的知识节点不存在")
+
+    source_content = ""
+    source = (await db.execute(select(Source).where(Source.id == node.source_id))).scalar_one_or_none()
+    if source and source.content_text:
+        source_content = source.content_text
+
+    generation = PodcastGeneration(
+        task_id=task.id,
+        title=f"{node.name} - 音频播客",
+        status="generating",
+    )
+    db.add(generation)
+    await db.commit()
+    await db.refresh(generation)
+
+    background_tasks.add_task(
+        _generate_content_background,
+        generation_id=generation.id,
+        task_id=task.id,
+        content_type="podcast",
+        node_name=node.name,
+        node_description=node.description or "",
+        source_content=source_content,
+        current_stage=task.current_stage,
+        difficulty=task.difficulty,
+    )
+
+    return {"generation_id": generation.id, "status": "generating", "message": "音频播客正在生成中，请查询状态接口获取结果"}
+
+
+@router.post("/{task_id}/mindmap/generate", status_code=202)
+async def generate_mindmap(task_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    """Start mindmap generation asynchronously."""
+    from app.models.learning_task import MindmapGeneration
+
+    task = (await db.execute(select(LearningTask).where(LearningTask.id == task_id))).scalar_one_or_none()
+    if not task:
+        raise HTTPException(404, "学习任务不存在")
+
+    node = (await db.execute(select(GraphNode).where(GraphNode.id == task.node_id))).scalar_one_or_none()
+    if not node:
+        raise HTTPException(404, "关联的知识节点不存在")
+
+    source_content = ""
+    source = (await db.execute(select(Source).where(Source.id == node.source_id))).scalar_one_or_none()
+    if source and source.content_text:
+        source_content = source.content_text
+
+    generation = MindmapGeneration(
+        task_id=task.id,
+        title=f"{node.name} - 思维导图",
+        status="generating",
+    )
+    db.add(generation)
+    await db.commit()
+    await db.refresh(generation)
+
+    background_tasks.add_task(
+        _generate_content_background,
+        generation_id=generation.id,
+        task_id=task.id,
+        content_type="mindmap",
+        node_name=node.name,
+        node_description=node.description or "",
+        source_content=source_content,
+        current_stage=task.current_stage,
+        difficulty=task.difficulty,
+    )
+
+    return {"generation_id": generation.id, "status": "generating", "message": "思维导图正在生成中，请查询状态接口获取结果"}
+
+
+# Status and list endpoints
+@router.get("/{task_id}/video/status")
+async def get_video_status(task_id: int, db: AsyncSession = Depends(get_db)):
+    """Get the status of the latest video generation."""
+    from app.models.learning_task import VideoGeneration
+
+    generation = (
+        await db.execute(
+            select(VideoGeneration)
+            .where(VideoGeneration.task_id == task_id)
+            .order_by(VideoGeneration.created_at.desc())
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "没有找到视频生成记录")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "script": generation.script if generation.status == "ready" else None,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/animation/status")
+async def get_animation_status(task_id: int, db: AsyncSession = Depends(get_db)):
+    """Get the status of the latest animation generation."""
+    from app.models.learning_task import AnimationGeneration
+
+    generation = (
+        await db.execute(
+            select(AnimationGeneration)
+            .where(AnimationGeneration.task_id == task_id)
+            .order_by(AnimationGeneration.created_at.desc())
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "没有找到动画生成记录")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "concept": generation.concept if generation.status == "ready" else None,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/podcast/status")
+async def get_podcast_status(task_id: int, db: AsyncSession = Depends(get_db)):
+    """Get the status of the latest podcast generation."""
+    from app.models.learning_task import PodcastGeneration
+
+    generation = (
+        await db.execute(
+            select(PodcastGeneration)
+            .where(PodcastGeneration.task_id == task_id)
+            .order_by(PodcastGeneration.created_at.desc())
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "没有找到播客生成记录")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "script": generation.script if generation.status == "ready" else None,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/mindmap/status")
+async def get_mindmap_status(task_id: int, db: AsyncSession = Depends(get_db)):
+    """Get the status of the latest mindmap generation."""
+    from app.models.learning_task import MindmapGeneration
+
+    generation = (
+        await db.execute(
+            select(MindmapGeneration)
+            .where(MindmapGeneration.task_id == task_id)
+            .order_by(MindmapGeneration.created_at.desc())
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "没有找到思维导图生成记录")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "nodes": generation.nodes if generation.status == "ready" else None,
+        "edges": generation.edges if generation.status == "ready" else None,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+# List and detail endpoints
+@router.get("/{task_id}/video")
+async def list_video(task_id: int, db: AsyncSession = Depends(get_db)):
+    """List all video generations for a task."""
+    from app.models.learning_task import VideoGeneration
+
+    generations = (
+        await db.execute(
+            select(VideoGeneration)
+            .where(VideoGeneration.task_id == task_id)
+            .order_by(VideoGeneration.created_at.desc())
+        )
+    ).scalars().all()
+
+    return [{
+        "id": g.id,
+        "task_id": g.task_id,
+        "title": g.title,
+        "status": g.status,
+        "file_path": g.file_path,
+        "error": g.error,
+        "created_at": g.created_at,
+    } for g in generations]
+
+
+@router.get("/{task_id}/animation")
+async def list_animation(task_id: int, db: AsyncSession = Depends(get_db)):
+    """List all animation generations for a task."""
+    from app.models.learning_task import AnimationGeneration
+
+    generations = (
+        await db.execute(
+            select(AnimationGeneration)
+            .where(AnimationGeneration.task_id == task_id)
+            .order_by(AnimationGeneration.created_at.desc())
+        )
+    ).scalars().all()
+
+    return [{
+        "id": g.id,
+        "task_id": g.task_id,
+        "title": g.title,
+        "status": g.status,
+        "file_path": g.file_path,
+        "error": g.error,
+        "created_at": g.created_at,
+    } for g in generations]
+
+
+@router.get("/{task_id}/podcast")
+async def list_podcast(task_id: int, db: AsyncSession = Depends(get_db)):
+    """List all podcast generations for a task."""
+    from app.models.learning_task import PodcastGeneration
+
+    generations = (
+        await db.execute(
+            select(PodcastGeneration)
+            .where(PodcastGeneration.task_id == task_id)
+            .order_by(PodcastGeneration.created_at.desc())
+        )
+    ).scalars().all()
+
+    return [{
+        "id": g.id,
+        "task_id": g.task_id,
+        "title": g.title,
+        "status": g.status,
+        "file_path": g.file_path,
+        "error": g.error,
+        "created_at": g.created_at,
+    } for g in generations]
+
+
+@router.get("/{task_id}/mindmap")
+async def list_mindmap(task_id: int, db: AsyncSession = Depends(get_db)):
+    """List all mindmap generations for a task."""
+    from app.models.learning_task import MindmapGeneration
+
+    generations = (
+        await db.execute(
+            select(MindmapGeneration)
+            .where(MindmapGeneration.task_id == task_id)
+            .order_by(MindmapGeneration.created_at.desc())
+        )
+    ).scalars().all()
+
+    return [{
+        "id": g.id,
+        "task_id": g.task_id,
+        "title": g.title,
+        "status": g.status,
+        "file_path": g.file_path,
+        "error": g.error,
+        "created_at": g.created_at,
+    } for g in generations]
+
+
+# Detail and download endpoints
+@router.get("/{task_id}/video/{generation_id}")
+async def get_video_detail(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Get video generation detail by ID."""
+    from app.models.learning_task import VideoGeneration
+
+    generation = (
+        await db.execute(
+            select(VideoGeneration).where(VideoGeneration.id == generation_id, VideoGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "视频不存在")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "script": generation.script,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/animation/{generation_id}")
+async def get_animation_detail(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Get animation generation detail by ID."""
+    from app.models.learning_task import AnimationGeneration
+
+    generation = (
+        await db.execute(
+            select(AnimationGeneration).where(AnimationGeneration.id == generation_id, AnimationGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "动画不存在")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "concept": generation.concept,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/podcast/{generation_id}")
+async def get_podcast_detail(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Get podcast generation detail by ID."""
+    from app.models.learning_task import PodcastGeneration
+
+    generation = (
+        await db.execute(
+            select(PodcastGeneration).where(PodcastGeneration.id == generation_id, PodcastGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "播客不存在")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "script": generation.script,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/mindmap/{generation_id}")
+async def get_mindmap_detail(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Get mindmap generation detail by ID."""
+    from app.models.learning_task import MindmapGeneration
+
+    generation = (
+        await db.execute(
+            select(MindmapGeneration).where(MindmapGeneration.id == generation_id, MindmapGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "思维导图不存在")
+
+    return {
+        "id": generation.id,
+        "task_id": generation.task_id,
+        "title": generation.title,
+        "status": generation.status,
+        "nodes": generation.nodes,
+        "edges": generation.edges,
+        "file_path": generation.file_path,
+        "error": generation.error,
+        "created_at": generation.created_at,
+    }
+
+
+@router.get("/{task_id}/video/{generation_id}/download")
+async def download_video(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Download video HTML file."""
+    from fastapi.responses import FileResponse
+    import os
+    from app.models.learning_task import VideoGeneration
+
+    generation = (
+        await db.execute(
+            select(VideoGeneration).where(VideoGeneration.id == generation_id, VideoGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "视频不存在")
+
+    if not generation.file_path or not os.path.exists(generation.file_path):
+        raise HTTPException(404, "视频文件不存在")
+
+    safe_title = "".join(c if c.isalnum() or c in ('-', '_') else '_' for c in generation.title)
+    filename = f"{safe_title}.html"
+
+    return FileResponse(
+        path=generation.file_path,
+        filename=filename,
+        media_type="text/html",
+    )
+
+
+@router.get("/{task_id}/animation/{generation_id}/download")
+async def download_animation(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Download animation HTML file."""
+    from fastapi.responses import FileResponse
+    import os
+    from app.models.learning_task import AnimationGeneration
+
+    generation = (
+        await db.execute(
+            select(AnimationGeneration).where(AnimationGeneration.id == generation_id, AnimationGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "动画不存在")
+
+    if not generation.file_path or not os.path.exists(generation.file_path):
+        raise HTTPException(404, "动画文件不存在")
+
+    safe_title = "".join(c if c.isalnum() or c in ('-', '_') else '_' for c in generation.title)
+    filename = f"{safe_title}.html"
+
+    return FileResponse(
+        path=generation.file_path,
+        filename=filename,
+        media_type="text/html",
+    )
+
+
+@router.get("/{task_id}/podcast/{generation_id}/download")
+async def download_podcast(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Download podcast HTML file."""
+    from fastapi.responses import FileResponse
+    import os
+    from app.models.learning_task import PodcastGeneration
+
+    generation = (
+        await db.execute(
+            select(PodcastGeneration).where(PodcastGeneration.id == generation_id, PodcastGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "播客不存在")
+
+    if not generation.file_path or not os.path.exists(generation.file_path):
+        raise HTTPException(404, "播客文件不存在")
+
+    safe_title = "".join(c if c.isalnum() or c in ('-', '_') else '_' for c in generation.title)
+    filename = f"{safe_title}.html"
+
+    return FileResponse(
+        path=generation.file_path,
+        filename=filename,
+        media_type="text/html",
+    )
+
+
+@router.get("/{task_id}/mindmap/{generation_id}/download")
+async def download_mindmap(task_id: int, generation_id: int, db: AsyncSession = Depends(get_db)):
+    """Download mindmap HTML file."""
+    from fastapi.responses import FileResponse
+    import os
+    from app.models.learning_task import MindmapGeneration
+
+    generation = (
+        await db.execute(
+            select(MindmapGeneration).where(MindmapGeneration.id == generation_id, MindmapGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "思维导图不存在")
+
+    if not generation.file_path or not os.path.exists(generation.file_path):
+        raise HTTPException(404, "思维导图文件不存在")
+
+    safe_title = "".join(c if c.isalnum() or c in ('-', '_') else '_' for c in generation.title)
+    filename = f"{safe_title}.html"
+
+    return FileResponse(
+        path=generation.file_path,
+        filename=filename,
+        media_type="text/html",
+    )

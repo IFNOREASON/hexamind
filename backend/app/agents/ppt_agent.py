@@ -250,7 +250,7 @@ async def generate_ppt(state: PptState) -> PptState:
         difficulty_guidance=difficulty_guidance,
     )
 
-    llm = get_llm(temperature=0.2)
+    llm = get_llm(temperature=0.2, content_type='ppt')
     try:
         response = await llm.ainvoke([
             SystemMessage(content="你是一个专业的 PPT 课件制作专家，只返回 JSON 对象，不要包含任何其他文字。你擅长设计精美的演示文稿，包含排版建议、插图建议和配色方案。"),

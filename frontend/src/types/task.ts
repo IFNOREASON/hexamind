@@ -95,10 +95,171 @@ export interface PptGenerationStatus {
   message: string
 }
 
+// Video Generation Types
+export interface VideoScene {
+  scene_number: number
+  title: string
+  duration: string
+  visuals: string
+  narration: string
+  b_roll?: string
+}
+
+export interface VideoScript {
+  title: string
+  introduction: string
+  scenes: VideoScene[]
+  conclusion: string
+  key_takeaways: string[]
+}
+
+export interface VideoGeneration {
+  id: number
+  task_id: number
+  title: string
+  status: string
+  script?: VideoScript
+  file_path?: string
+  error?: string
+  created_at: string | null
+}
+
+export interface VideoGenerationStatus {
+  generation_id: number
+  status: string
+  message: string
+}
+
+// Animation Generation Types
+export interface AnimationKeyFrame {
+  frame_number: number
+  timestamp: string
+  visual_description: string
+  animation_type: string
+  narration: string
+}
+
+export interface AnimationConcept {
+  title: string
+  animation_type: string
+  visual_style: string
+  duration: string
+  target_audience: string
+  learning_objectives: string[]
+  key_frames: AnimationKeyFrame[]
+  voiceover_style: string
+  background_music: string
+  transitions: string[]
+}
+
+export interface AnimationGeneration {
+  id: number
+  task_id: number
+  title: string
+  status: string
+  concept?: AnimationConcept
+  file_path?: string
+  error?: string
+  created_at: string | null
+}
+
+export interface AnimationGenerationStatus {
+  generation_id: number
+  status: string
+  message: string
+}
+
+// Podcast Generation Types
+export interface PodcastSegment {
+  segment_number: number
+  title: string
+  duration: string
+  type: string
+  transcript: string
+  speaker_notes?: string
+  sound_effects?: string[]
+}
+
+export interface PodcastScript {
+  title: string
+  host_persona: string
+  introduction: string
+  segments: PodcastSegment[]
+  conclusion: string
+  key_takeaways: string[]
+  recommended_resources: string[]
+  estimated_duration: string
+}
+
+export interface PodcastGeneration {
+  id: number
+  task_id: number
+  title: string
+  status: string
+  script?: PodcastScript
+  file_path?: string
+  error?: string
+  created_at: string | null
+}
+
+export interface PodcastGenerationStatus {
+  generation_id: number
+  status: string
+  message: string
+}
+
+// Mindmap Generation Types
+export interface MindmapNode {
+  id: string
+  label: string
+  level: number
+  parent?: string
+  color: string
+  icon?: string
+  description?: string
+}
+
+export interface MindmapEdge {
+  source: string
+  target: string
+  label?: string
+}
+
+export interface MindmapData {
+  title: string
+  center_topic: string
+  nodes: MindmapNode[]
+  edges: MindmapEdge[]
+  legend: Record<string, string>
+  layout: string
+}
+
+export interface MindmapGeneration {
+  id: number
+  task_id: number
+  title: string
+  status: string
+  nodes?: MindmapNode[]
+  edges?: MindmapEdge[]
+  file_path?: string
+  error?: string
+  created_at: string | null
+}
+
+export interface MindmapGenerationStatus {
+  generation_id: number
+  status: string
+  message: string
+}
+
 export interface StudyTab {
   id: string
-  type: 'materials' | 'ppt'
+  type: 'materials' | 'ppt' | 'video' | 'animation' | 'podcast' | 'mindmap'
   title: string
   pptId?: number
+  videoId?: number
+  animationId?: number
+  podcastId?: number
+  mindmapId?: number
 }
 
