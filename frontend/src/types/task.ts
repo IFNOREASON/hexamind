@@ -54,3 +54,51 @@ export interface QuizResult {
   total: number
   details: QuizQuestionDetail[]
 }
+
+export interface PptTheme {
+  primary_color: string
+  secondary_color: string
+  accent_color: string
+  background: string
+}
+
+export interface PptSlide {
+  title: string
+  content: string
+  content_list?: string[]
+  highlights?: number[]
+  type?: 'cover' | 'content' | 'summary' | 'comparison' | 'timeline' | 'quote' | 'table'
+  layout?: 'center' | 'single' | 'two-column' | 'three-column' | 'image-left' | 'image-right' | 'full-image'
+  subtitle?: string
+  key_points?: string[]
+  next_steps?: string
+  illustration?: string
+  notes?: string
+  theme?: PptTheme
+  ppt_title?: string
+}
+
+export interface PptGeneration {
+  id: number
+  task_id: number
+  title: string
+  status: string
+  slides?: PptSlide[]
+  file_path?: string
+  error?: string
+  created_at: string | null
+}
+
+export interface PptGenerationStatus {
+  generation_id: number
+  status: string
+  message: string
+}
+
+export interface StudyTab {
+  id: string
+  type: 'materials' | 'ppt'
+  title: string
+  pptId?: number
+}
+

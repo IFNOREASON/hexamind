@@ -20,9 +20,13 @@ class Settings(BaseSettings):
     # Extraction
     extraction_cache_dir: Path = Path(".cache/extractions")
 
+    # PPT Generation
+    ppt_output_dir: Path = Path("outputs/ppt")
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
 settings = Settings()
 settings.upload_dir.mkdir(parents=True, exist_ok=True)
 settings.extraction_cache_dir.mkdir(parents=True, exist_ok=True)
+settings.ppt_output_dir.mkdir(parents=True, exist_ok=True)

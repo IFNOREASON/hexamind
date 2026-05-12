@@ -5,15 +5,18 @@ import logging
 import asyncio
 
 from app.database import get_db
-from app.models.learning_task import LearningTask, QuizAttempt
+from app.models.learning_task import LearningTask, QuizAttempt, PptGeneration
 from app.models.graph_node import GraphNode
 from app.models.source import Source
 from app.schemas.task import (
     TaskCreate, TaskUpdate, TaskOut,
     QuizQuestionOut, QuizSubmission, QuizResultOut, QuizQuestionDetail,
     QuizAttemptOut, QuizGenerationStatusOut,
+    PptSlide, PptGenerationOut, PptGenerationStatusOut,
 )
 from app.agents.quiz_agent import run_quiz_generation
+from app.agents.ppt_agent import run_ppt_generation
+from app.services.ppt_generator import save_ppt_as_html
 from app.constants import MAX_TASKS, PASS_THRESHOLD, STAGE_COUNT
 
 logger = logging.getLogger(__name__)
@@ -69,6 +72,72 @@ async def _generate_quiz_background(
             if attempt:
                 attempt.status = "failed"
                 attempt.error = str(e)[:500]
+                await db.commit()
+
+
+async def _generate_ppt_background(
+    generation_id: int,
+    node_name: str,
+    node_description: str,
+    source_content: str,
+    current_stage: int,
+    difficulty: str,
+):
+    """Background task to generate PPT slides."""
+    from app.database import async_session
+    
+    async with async_session() as db:
+        try:
+            slides = await asyncio.wait_for(
+                run_ppt_generation(
+                    node_name=node_name,
+                    node_description=node_description,
+                    source_content=source_content,
+                    current_stage=current_stage,
+                    difficulty=difficulty,
+                ),
+                timeout=120.0
+            )
+            
+            if not slides:
+                raise Exception("生成的幻灯片为空")
+            
+            ppt_title = f"{node_name} - PPT课件"
+            if slides and slides[0].get("ppt_title"):
+                ppt_title = slides[0]["ppt_title"]
+            
+            generation = (await db.execute(select(PptGeneration).where(PptGeneration.id == generation_id))).scalar_one_or_none()
+            if generation:
+                generation.title = ppt_title
+                generation.slides = slides
+                generation.status = "ready"
+                
+                try:
+                    file_path = await save_ppt_as_html(
+                        slides=slides,
+                        ppt_id=generation_id,
+                        title=ppt_title,
+                        task_id=generation.task_id,
+                    )
+                    generation.file_path = file_path
+                except Exception as save_error:
+                    logger.error(f"Failed to save PPT HTML file: {save_error}")
+                
+                await db.commit()
+                logger.info(f"PPT generation completed for generation {generation_id}")
+        except asyncio.TimeoutError:
+            logger.error(f"PPT generation timeout for generation {generation_id}")
+            generation = (await db.execute(select(PptGeneration).where(PptGeneration.id == generation_id))).scalar_one_or_none()
+            if generation:
+                generation.status = "failed"
+                generation.error = "生成超时，请稍后重试"
+                await db.commit()
+        except Exception as e:
+            logger.error(f"PPT generation failed for generation {generation_id}: {e}")
+            generation = (await db.execute(select(PptGeneration).where(PptGeneration.id == generation_id))).scalar_one_or_none()
+            if generation:
+                generation.status = "failed"
+                generation.error = str(e)[:500]
                 await db.commit()
 
 
@@ -160,7 +229,12 @@ async def delete_task(task_id: int, db: AsyncSession = Depends(get_db)):
     for a in attempts:
         await db.delete(a)
     
-    # Flush to ensure quiz attempts are deleted before deleting the task
+    # Delete related PPT generations
+    ppt_generations = (await db.execute(select(PptGeneration).where(PptGeneration.task_id == task_id))).scalars().all()
+    for p in ppt_generations:
+        await db.delete(p)
+    
+    # Flush to ensure related records are deleted before deleting the task
     await db.flush()
 
     await db.delete(task)
@@ -359,3 +433,175 @@ async def advance_stage(task_id: int, db: AsyncSession = Depends(get_db)):
     await db.commit()
     await db.refresh(task)
     return await _task_to_out(task, db)
+
+
+@router.post("/{task_id}/ppt/generate", response_model=PptGenerationStatusOut, status_code=202)
+async def generate_ppt(task_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    """Start PPT generation asynchronously. Returns immediately with status."""
+    task = (await db.execute(select(LearningTask).where(LearningTask.id == task_id))).scalar_one_or_none()
+    if not task:
+        raise HTTPException(404, "学习任务不存在")
+
+    node = (await db.execute(select(GraphNode).where(GraphNode.id == task.node_id))).scalar_one_or_none()
+    if not node:
+        raise HTTPException(404, "关联的知识节点不存在")
+
+    source_content = ""
+    source = (await db.execute(select(Source).where(Source.id == node.source_id))).scalar_one_or_none()
+    if source and source.content_text:
+        source_content = source.content_text
+
+    generation = PptGeneration(
+        task_id=task.id,
+        title=f"{node.name} - PPT课件",
+        slides=None,
+        status="generating",
+    )
+    db.add(generation)
+    await db.commit()
+    await db.refresh(generation)
+
+    background_tasks.add_task(
+        _generate_ppt_background,
+        generation_id=generation.id,
+        node_name=node.name,
+        node_description=node.description or "",
+        source_content=source_content,
+        current_stage=task.current_stage,
+        difficulty=task.difficulty,
+    )
+
+    return PptGenerationStatusOut(
+        generation_id=generation.id,
+        status="generating",
+        message="PPT课件正在生成中，请查询状态接口获取结果"
+    )
+
+
+@router.get("/{task_id}/ppt/status", response_model=PptGenerationOut)
+async def get_ppt_status(task_id: int, db: AsyncSession = Depends(get_db)):
+    """Get the status of the latest PPT generation."""
+    generation = (
+        await db.execute(
+            select(PptGeneration)
+            .where(PptGeneration.task_id == task_id)
+            .order_by(PptGeneration.created_at.desc())
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "没有找到 PPT 生成记录")
+
+    slides = None
+    if generation.status == "ready" and generation.slides:
+        slides = [
+            PptSlide(title=s.get("title", ""), content=s.get("content", ""), notes=s.get("notes"))
+            for s in generation.slides
+        ]
+
+    return PptGenerationOut(
+        id=generation.id,
+        task_id=generation.task_id,
+        title=generation.title,
+        status=generation.status,
+        slides=slides,
+        file_path=generation.file_path,
+        error=generation.error,
+        created_at=generation.created_at,
+    )
+
+
+@router.get("/{task_id}/ppt", response_model=list[PptGenerationOut])
+async def list_ppt(task_id: int, db: AsyncSession = Depends(get_db)):
+    """List all PPT generations for a task."""
+    task = (await db.execute(select(LearningTask).where(LearningTask.id == task_id))).scalar_one_or_none()
+    if not task:
+        raise HTTPException(404, "学习任务不存在")
+
+    generations = (
+        await db.execute(
+            select(PptGeneration)
+            .where(PptGeneration.task_id == task_id)
+            .order_by(PptGeneration.created_at.desc())
+        )
+    ).scalars().all()
+
+    result = []
+    for generation in generations:
+        slides = None
+        if generation.status == "ready" and generation.slides:
+            slides = [
+                PptSlide(title=s.get("title", ""), content=s.get("content", ""), notes=s.get("notes"))
+                for s in generation.slides
+            ]
+        result.append(PptGenerationOut(
+            id=generation.id,
+            task_id=generation.task_id,
+            title=generation.title,
+            status=generation.status,
+            slides=slides,
+            file_path=generation.file_path,
+            error=generation.error,
+            created_at=generation.created_at,
+        ))
+
+    return result
+
+
+@router.get("/{task_id}/ppt/{ppt_id}", response_model=PptGenerationOut)
+async def get_ppt_detail(task_id: int, ppt_id: int, db: AsyncSession = Depends(get_db)):
+    """Get PPT generation detail by ID."""
+    generation = (
+        await db.execute(
+            select(PptGeneration).where(PptGeneration.id == ppt_id, PptGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "PPT 不存在")
+
+    slides = None
+    if generation.status == "ready" and generation.slides:
+        slides = [
+            PptSlide(title=s.get("title", ""), content=s.get("content", ""), notes=s.get("notes"))
+            for s in generation.slides
+        ]
+
+    return PptGenerationOut(
+        id=generation.id,
+        task_id=generation.task_id,
+        title=generation.title,
+        status=generation.status,
+        slides=slides,
+        file_path=generation.file_path,
+        error=generation.error,
+        created_at=generation.created_at,
+    )
+
+
+@router.get("/{task_id}/ppt/{ppt_id}/download")
+async def download_ppt(task_id: int, ppt_id: int, db: AsyncSession = Depends(get_db)):
+    """Download PPT HTML file."""
+    from fastapi.responses import FileResponse
+    import os
+
+    generation = (
+        await db.execute(
+            select(PptGeneration).where(PptGeneration.id == ppt_id, PptGeneration.task_id == task_id)
+        )
+    ).scalar_one_or_none()
+
+    if not generation:
+        raise HTTPException(404, "PPT 不存在")
+
+    if not generation.file_path or not os.path.exists(generation.file_path):
+        raise HTTPException(404, "PPT 文件不存在")
+
+    safe_title = "".join(c if c.isalnum() or c in ('-', '_') else '_' for c in generation.title)
+    filename = f"{safe_title}.html"
+
+    return FileResponse(
+        path=generation.file_path,
+        filename=filename,
+        media_type="text/html",
+    )

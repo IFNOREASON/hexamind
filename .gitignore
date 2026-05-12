@@ -70,3 +70,5 @@ yarn-error.log*
 
 # 其他
 *.map
+backend/.env
+backend/.env

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { LearningTask, QuizQuestion, QuizResult } from '@/types/task'
+import { ref, computed } from 'vue'
+import type { LearningTask, QuizQuestion, QuizResult, PptGeneration, StudyTab } from '@/types/task'
 import * as taskApi from '@/api/task'
 
 export const useTaskStore = defineStore('task', () => {
@@ -29,6 +29,21 @@ export const useTaskStore = defineStore('task', () => {
   const quizResultOpen = ref(false)
   const quizResult = ref<QuizResult | null>(null)
 
+  // PPT state
+  const pptGenerations = ref<PptGeneration[]>([])
+  const pptLoading = ref(false)
+  const currentPpt = ref<PptGeneration | null>(null)
+
+  // Study tabs state
+  const studyTabs = ref<StudyTab[]>([
+    { id: 'materials', type: 'materials', title: '学习资料' }
+  ])
+  const activeStudyTabId = ref<string>('materials')
+
+  const activeStudyTab = computed(() => {
+    return studyTabs.value.find(t => t.id === activeStudyTabId.value) || studyTabs.value[0]
+  })
+
   // ── Task Panel ──
   function openTaskPanel() {
     taskPanelOpen.value = true
@@ -55,6 +70,10 @@ export const useTaskStore = defineStore('task', () => {
     studyPageOpen.value = true
     hasViewedMaterials.value = false
     sourceContent.value = ''
+    studyTabs.value = [{ id: 'materials', type: 'materials', title: '学习资料' }]
+    activeStudyTabId.value = 'materials'
+    pptGenerations.value = []
+    currentPpt.value = null
   }
 
   function closeStudyPage() {
@@ -62,6 +81,10 @@ export const useTaskStore = defineStore('task', () => {
     currentTask.value = null
     sourceContent.value = ''
     hasViewedMaterials.value = false
+    studyTabs.value = [{ id: 'materials', type: 'materials', title: '学习资料' }]
+    activeStudyTabId.value = 'materials'
+    pptGenerations.value = []
+    currentPpt.value = null
   }
 
   function markMaterialsViewed() {
@@ -244,6 +267,127 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
 
+  // ── Study Tabs ──
+  function setActiveStudyTab(tabId: string) {
+    activeStudyTabId.value = tabId
+  }
+
+  function openPptTab(ppt: PptGeneration) {
+    const existingTab = studyTabs.value.find(t => t.type === 'ppt' && t.pptId === ppt.id)
+    if (existingTab) {
+      activeStudyTabId.value = existingTab.id
+      return
+    }
+
+    const newTab: StudyTab = {
+      id: `ppt-${ppt.id}`,
+      type: 'ppt',
+      title: ppt.title || 'PPT课件',
+      pptId: ppt.id
+    }
+    studyTabs.value.push(newTab)
+    activeStudyTabId.value = newTab.id
+    currentPpt.value = ppt
+  }
+
+  function closeStudyTab(tabId: string) {
+    if (tabId === 'materials') return
+
+    const idx = studyTabs.value.findIndex(t => t.id === tabId)
+    if (idx === -1) return
+
+    studyTabs.value.splice(idx, 1)
+
+    if (activeStudyTabId.value === tabId) {
+      if (idx > 0) {
+        activeStudyTabId.value = studyTabs.value[idx - 1].id
+      } else if (studyTabs.value.length > 0) {
+        activeStudyTabId.value = studyTabs.value[0].id
+      }
+    }
+
+    if (currentPpt.value && studyTabs.value.every(t => t.pptId !== currentPpt.value?.id)) {
+      currentPpt.value = null
+    }
+  }
+
+  // ── PPT Generation ──
+  async function loadPptList() {
+    if (!currentTask.value) return
+    try {
+      pptGenerations.value = await taskApi.listPpt(currentTask.value.id)
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load PPT list:', e)
+    }
+  }
+
+  async function loadPptDetail(pptId: number) {
+    if (!currentTask.value) return
+    try {
+      const ppt = await taskApi.getPptDetail(currentTask.value.id, pptId)
+      currentPpt.value = ppt
+      return ppt
+    } catch (e) {
+      console.warn('[TaskStore] Failed to load PPT detail:', e)
+      return null
+    }
+  }
+
+  async function generatePpt() {
+    if (!currentTask.value) {
+      console.warn('[TaskStore] No current task for PPT generation')
+      return
+    }
+
+    console.log('[TaskStore] Starting PPT generation for task:', currentTask.value.id, currentTask.value.name)
+    pptLoading.value = true
+
+    try {
+      const result = await taskApi.generatePpt(currentTask.value.id)
+      console.log('[TaskStore] PPT generation started:', result)
+
+      const maxAttempts = 120
+      let attempts = 0
+
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        const status = await taskApi.getPptStatus(currentTask.value.id)
+        console.log('[TaskStore] PPT status:', status.status, `(${attempts + 1}s)`)
+
+        if (status.status === 'ready') {
+          if (status.slides && status.slides.length > 0) {
+            await loadPptList()
+            openPptTab(status)
+            console.log('[TaskStore] PPT ready with', status.slides.length, 'slides')
+            return
+          } else {
+            alert('PPT生成失败：未生成有效幻灯片，请检查任务是否有关联的知识资料')
+            return
+          }
+        } else if (status.status === 'failed') {
+          alert('PPT生成失败：' + (status.error || '未知错误'))
+          return
+        }
+
+        attempts++
+      }
+
+      alert('PPT生成超时：LLM 响应时间过长，请稍后重试')
+    } catch (error: any) {
+      console.error('[TaskStore] PPT generation failed:', error)
+      if (error.code === 'ECONNABORTED') {
+        alert('启动PPT生成超时，请稍后重试')
+      } else if (error.response?.status === 500) {
+        alert('PPT生成失败：后端服务错误，请检查 LLM API Key 配置')
+      } else {
+        alert('PPT生成失败：' + (error.message || '未知错误'))
+      }
+    } finally {
+      pptLoading.value = false
+    }
+  }
+
   return {
     // State
     tasks,
@@ -261,6 +405,12 @@ export const useTaskStore = defineStore('task', () => {
     quizLoading,
     quizResultOpen,
     quizResult,
+    pptGenerations,
+    pptLoading,
+    currentPpt,
+    studyTabs,
+    activeStudyTabId,
+    activeStudyTab,
     // Actions
     openTaskPanel,
     closeTaskPanel,
@@ -283,5 +433,11 @@ export const useTaskStore = defineStore('task', () => {
     generateQuiz,
     submitQuizAnswers,
     advanceTaskStage,
+    setActiveStudyTab,
+    openPptTab,
+    closeStudyTab,
+    loadPptList,
+    loadPptDetail,
+    generatePpt,
   }
 })

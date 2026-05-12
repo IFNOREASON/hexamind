@@ -74,3 +74,28 @@ class QuizGenerationStatusOut(BaseModel):
     attempt_id: int
     status: str  # generating, ready, failed
     message: str
+
+
+class PptSlide(BaseModel):
+    title: str
+    content: str
+    notes: str | None = None
+
+
+class PptGenerationOut(BaseModel):
+    id: int
+    task_id: int
+    title: str
+    status: str  # generating, ready, failed
+    slides: list[PptSlide] | None = None
+    file_path: str | None = None
+    error: str | None = None
+    created_at: datetime | None = None
+
+    model_config = {"from_attributes": True}
+
+
+class PptGenerationStatusOut(BaseModel):
+    generation_id: int
+    status: str  # generating, ready, failed
+    message: str

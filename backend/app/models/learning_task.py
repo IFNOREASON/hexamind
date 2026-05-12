@@ -30,3 +30,16 @@ class QuizAttempt(Base):
     status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
     error = Column(String(500), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
+
+
+class PptGeneration(Base):
+    __tablename__ = "ppt_generations"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    task_id = Column(Integer, ForeignKey("learning_tasks.id"), nullable=False)
+    title = Column(String(255), nullable=False, default="PPT课件")
+    slides = Column(JSON, nullable=True)  # List of slide objects
+    file_path = Column(String(500), nullable=True)  # Path to saved HTML file
+    status = Column(String(20), nullable=False, default="generating")  # generating, ready, failed
+    error = Column(String(500), nullable=True)
+    created_at = Column(DateTime, server_default=func.now())

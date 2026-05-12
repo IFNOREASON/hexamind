@@ -1,5 +1,5 @@
 import apiClient from './client'
-import type { LearningTask, QuizQuestion, QuizResult } from '@/types/task'
+import type { LearningTask, QuizQuestion, QuizResult, PptGeneration, PptGenerationStatus } from '@/types/task'
 
 export async function fetchTasks(): Promise<LearningTask[]> {
   const { data } = await apiClient.get<LearningTask[]>('/tasks')
@@ -44,5 +44,27 @@ export async function advanceStage(taskId: number): Promise<LearningTask> {
 
 export async function fetchSourceContent(sourceId: number): Promise<{ name: string; content_text: string | null }> {
   const { data } = await apiClient.get<{ name: string; content_text: string | null }>(`/sources/${sourceId}/content`)
+  return data
+}
+
+export async function generatePpt(taskId: number): Promise<PptGenerationStatus> {
+  const { data } = await apiClient.post<PptGenerationStatus>(`/tasks/${taskId}/ppt/generate`, null, {
+    timeout: 10000,
+  })
+  return data
+}
+
+export async function getPptStatus(taskId: number): Promise<PptGeneration> {
+  const { data } = await apiClient.get<PptGeneration>(`/tasks/${taskId}/ppt/status`)
+  return data
+}
+
+export async function listPpt(taskId: number): Promise<PptGeneration[]> {
+  const { data } = await apiClient.get<PptGeneration[]>(`/tasks/${taskId}/ppt`)
+  return data
+}
+
+export async function getPptDetail(taskId: number, pptId: number): Promise<PptGeneration> {
+  const { data } = await apiClient.get<PptGeneration>(`/tasks/${taskId}/ppt/${pptId}`)
   return data
 }
